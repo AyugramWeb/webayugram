@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ayugram - Мессенджер для Windows</title>
+    <style>
+        :root {
+            --primary-color: #0088cc;
+            --bg-color: #ffffff;
+            --text-color: #333333;
+            --sidebar-color: #f5f5f5;
+            --border-color: #eaeaea;
+            --transition-time: 0.4s;
+        }
+
+        .dark-theme {
+            --primary-color: #2ca5e0;
+            --bg-color: #0e1621;
+            --text-color: #e4e4e4;
+            --sidebar-color: #17212b;
+            --border-color: #1a222e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color var(--transition-time) ease, 
+                        color var(--transition-time) ease,
+                        border-color var(--transition-time) ease;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+        }
+
+        .logo img {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+            border-radius: 50%;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            position: relative;
+        }
+
+        .theme-toggle, .language-toggle {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            font-size: 20px;
+            outline: none;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .theme-toggle:hover, .language-toggle:hover {
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+
+        .dark-theme .theme-toggle:hover, .dark-theme .language-toggle:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .language-menu {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background-color: var(--sidebar-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+            display: none;
+            min-width: 150px;
+        }
+
+        .language-menu.show {
+            display: block;
+            animation: fadeIn 0.2s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .language-option {
+            padding: 8px 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+
+        .language-option:hover {
+            background-color: rgba(0, 136, 204, 0.1);
+        }
+
+        .language-flag {
+            width: 20px;
+            margin-right: 10px;
+        }
+
+        .main-content {
+            display: flex;
+            gap: 40px;
+            margin-bottom: 60px;
+        }
+
+        .app-screenshot {
+            flex: 1;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .app-screenshot img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            border: 1px solid var(--border-color);
+        }
+
+        .download-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        h1 {
+            font-size: 36px;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+
+        .description {
+            font-size: 18px;
+            margin-bottom: 30px;
+            color: var(--text-color);
+            opacity: 0.9;
+        }
+
+        .download-btn {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 18px;
+            text-align: center;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            margin-bottom: 20px;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 136, 204, 0.3);
+        }
+
+        .download-meta {
+            font-size: 14px;
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin: 60px 0;
+        }
+
+        .feature-card {
+            background-color: var(--sidebar-color);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .feature-icon {
+            font-size: 30px;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .feature-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .feature-desc {
+            font-size: 16px;
+            opacity: 0.8;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px 0;
+            border-top: 1px solid var(--border-color);
+            margin-top: auto;
+            font-size: 14px;
+            opacity: 0.7;
+        }
+
+        .windows-badge {
+            display: inline-flex;
+            align-items: center;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+
+        .windows-badge i {
+            margin-right: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .features {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <img src="2.png" alt="Ayugram Logo">
+                Ayugram
+            </div>
+            <div class="header-controls">
+                <button class="language-toggle" id="languageToggle">🌐</button>
+                <div class="language-menu" id="languageMenu">
+                    <div class="language-option" data-lang="ru">
+                        <img src="https://flagcdn.com/w20/ru.png" class="language-flag" alt="Русский">
+                        Русский
+                    </div>
+                    <div class="language-option" data-lang="en">
+                        <img src="https://flagcdn.com/w20/gb.png" class="language-flag" alt="English">
+                        English
+                    </div>
+                    <div class="language-option" data-lang="uk">
+                        <img src="https://flagcdn.com/w20/ua.png" class="language-flag" alt="Українська">
+                        Українська
+                    </div>
+                    <div class="language-option" data-lang="de">
+                        <img src="https://flagcdn.com/w20/de.png" class="language-flag" alt="Deutsch">
+                        Deutsch
+                    </div>
+                </div>
+                <button class="theme-toggle" id="themeToggle">🌓</button>
+            </div>
+        </header>
+
+        <main>
+            <div class="main-content">
+                <div class="app-screenshot">
+                    <img src="1.jpg" alt="Ayugram Screenshot">
+                </div>
+                <div class="download-section">
+                    <h1 data-i18n="download-title">Скачайте Ayugram для Windows</h1>
+                    <p class="description" data-i18n="download-description">
+                        Быстрый и безопасный мессенджер с поддержкой темной темы и всеми необходимыми функциями для комфортного общения.
+                    </p>
+                    <a href="AyuGram.exe" class="download-btn" id="downloadBtn" data-i18n="download-button">Скачать для Windows</a>
+                    <p class="download-meta" data-i18n="download-meta">
+                        Версия 5.12.3 • Windows 7, 8, 10, 11
+                    </p>
+                </div>
+            </div>
+
+            <div class="features">
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h3 class="feature-title" data-i18n="feature1-title">Безопасность</h3>
+                    <p class="feature-desc" data-i18n="feature1-desc">
+                        Все сообщения защищены end-to-end шифрованием для вашей конфиденциальности.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎨</div>
+                    <h3 class="feature-title" data-i18n="feature2-title">Темы</h3>
+                    <p class="feature-desc" data-i18n="feature2-desc">
+                        Выбирайте между светлой и темной темой с плавными переходами.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3 class="feature-title" data-i18n="feature3-title">Скорость</h3>
+                    <p class="feature-desc" data-i18n="feature3-desc">
+                        Молниеносная работа даже на слабых компьютерах.
+                    </p>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p data-i18n="footer-copyright">© 2023 Ayugram. Все права защищены.</p>
+            <p data-i18n="footer-windows">Только для операционной системы Windows <span class="windows-badge"><i>🪟</i> Windows</span></p>
+        </footer>
+    </div>
+
+    <script>
+        // Translations
+        const translations = {
+            ru: {
+                "download-title": "Скачайте Ayugram для Windows",
+                "download-description": "Быстрый и безопасный мессенджер с поддержкой темной темы и всеми необходимыми функциями для комфортного общения.",
+                "download-button": "Скачать для Windows",
+                "download-meta": "Версия 5.12.3 • Windows 7, 8, 10, 11",
+                "feature1-title": "Безопасность",
+                "feature1-desc": "Все сообщения защищены end-to-end шифрованием для вашей конфиденциальности.",
+                "feature2-title": "Темы",
+                "feature2-desc": "Выбирайте между светлой и темной темой с плавными переходами.",
+                "feature3-title": "Скорость",
+                "feature3-desc": "Молниеносная работа даже на слабых компьютерах.",
+                "footer-copyright": "© 2023 Ayugram. Все права защищены.",
+                "footer-windows": "Только для операционной системы Windows"
+            },
+            en: {
+                "download-title": "Download Ayugram for Windows",
+                "download-description": "Fast and secure messenger with dark theme support and all necessary features for comfortable communication.",
+                "download-button": "Download for Windows",
+                "download-meta": "Version 5.12.3 • Windows 7, 8, 10, 11",
+                "feature1-title": "Security",
+                "feature1-desc": "All messages are protected by end-to-end encryption for your privacy.",
+                "feature2-title": "Themes",
+                "feature2-desc": "Choose between light and dark themes with smooth transitions.",
+                "feature3-title": "Speed",
+                "feature3-desc": "Lightning fast performance even on weak computers.",
+                "footer-copyright": "© 2023 Ayugram. All rights reserved.",
+                "footer-windows": "For Windows operating system only"
+            },
+            uk: {
+                "download-title": "Завантажте Ayugram для Windows",
+                "download-description": "Швидкий та безпечний месенджер з підтримкою темної теми та всіма необхідними функціями для комфортного спілкування.",
+                "download-button": "Завантажити для Windows",
+                "download-meta": "Версія 5.12.3 • Windows 7, 8, 10, 11",
+                "feature1-title": "Безпека",
+                "feature1-desc": "Усі повідомлення захищені end-to-end шифруванням для вашої конфіденційності.",
+                "feature2-title": "Теми",
+                "feature2-desc": "Оберіть між світлою та темною темами з плавними переходами.",
+                "feature3-title": "Швидкість",
+                "feature3-desc": "Блискавична робота навіть на слабких комп'ютерах.",
+                "footer-copyright": "© 2023 Ayugram. Усі права захищені.",
+                "footer-windows": "Тільки для операційної системи Windows"
+            },
+            de: {
+                "download-title": "Laden Sie Ayugram für Windows herunter",
+                "download-description": "Schneller und sicherer Messenger mit Dark-Theme-Unterstützung und allen notwendigen Funktionen für komfortable Kommunikation.",
+                "download-button": "Für Windows herunterladen",
+                "download-meta": "Version 5.12.3 • Windows 7, 8, 10, 11",
+                "feature1-title": "Sicherheit",
+                "feature1-desc": "Alle Nachrichten sind End-to-End-verschlüsselt für Ihre Privatsphäre.",
+                "feature2-title": "Themen",
+                "feature2-desc": "Wählen Sie zwischen hellen und dunklen Themen mit sanften Übergängen.",
+                "feature3-title": "Geschwindigkeit",
+                "feature3-desc": "Blitzschnelle Leistung auch auf schwachen Computern.",
+                "footer-copyright": "© 2023 Ayugram. Alle Rechte vorbehalten.",
+                "footer-windows": "Nur für Windows-Betriebssystem"
+            }
+        };
+
+        // Theme switching
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
+        
+        // Check for saved theme preference or use preferred color scheme
+        const savedTheme = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        
+        if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+            body.classList.add('dark-theme');
+            themeToggle.textContent = '🌞';
+        } else {
+            themeToggle.textContent = '🌜';
+        }
+        
+        themeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark-theme');
+            const isDark = body.classList.contains('dark-theme');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            themeToggle.textContent = isDark ? '🌞' : '🌜';
+        });
+
+        // Language switching
+        const languageToggle = document.getElementById('languageToggle');
+        const languageMenu = document.getElementById('languageMenu');
+        let currentLanguage = localStorage.getItem('language') || 'ru';
+
+        // Set initial language
+        updateLanguage(currentLanguage);
+
+        // Toggle language menu
+        languageToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            languageMenu.classList.toggle('show');
+        });
+
+        // Close language menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.header-controls')) {
+                languageMenu.classList.remove('show');
+            }
+        });
+
+        // Language selection
+        document.querySelectorAll('.language-option').forEach(option => {
+            option.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const lang = option.getAttribute('data-lang');
+                currentLanguage = lang;
+                localStorage.setItem('language', lang);
+                updateLanguage(lang);
+                languageMenu.classList.remove('show');
+            });
+        });
+
+        // Update all text elements to the selected language
+        function updateLanguage(lang) {
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                if (translations[lang] && translations[lang][key]) {
+                    element.textContent = translations[lang][key];
+                }
+            });
+        }
+
+        // Download button functionality
+        document.getElementById('downloadBtn').addEventListener('click', (e) => {
+            // Track download if needed
+            console.log('Download started');
+        });
+    </script>
+</body>
+</html>
